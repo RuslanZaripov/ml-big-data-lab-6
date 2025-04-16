@@ -27,3 +27,9 @@ docker logs --tail 3 pyspark-notebook
 ```
 
 - Replace the default port in the URL with the one you identified
+
+## Usefule materials
+
+- [Setting Up a PySpark Notebook using Docker](https://datascience.fm/setting-up-a-pyspark-notebook-using-docker/)
+
+- [Series on Apache Spark Performance Tuning/Optimisation](https://www.youtube.com/playlist?list=PLWAuYt0wgRcLCtWzUxNg4BjnYlCZNEVth)
