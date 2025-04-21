@@ -1,19 +1,5 @@
 # ml-big-data-lab-5
 
-- pull the `jupyter/all-spark-notebook` image
-
-```bash
-docker pull jupyter/all-spark-notebook:spark-3.5.0
-```
-
-- create `sparkdata` folder
-
-- run docker image and map `sparkdata` directory to the container
-
-```bash
-docker run -d -P --name pyspark-notebook -v /Users/datasciencefm/workspace/sparkdata:/sparkdata jupyter/all-spark-notebook:spark-3.5.0
-```
-
 - execute the following command to know which host port has been mapped to the container's port 8888
 
 ```bash
@@ -27,6 +13,41 @@ docker logs --tail 3 pyspark-notebook
 ```
 
 - Replace the default port in the URL with the one you identified
+
+## Load data to Cassandra
+
+- execute inside `cassandra` container
+
+```bash
+wget https://downloads.datastax.com/dsbulk/dsbulk-1.11.0.tar.gz
+
+tar -xzf dsbulk-1.11.0.tar.gz -C /opt/
+
+export PATH=/opt/dsbulk-1.11.0/bin:$PATH
+
+dsbulk --version
+
+# en.openfoodfacts.org.products.csv
+dsbulk load \
+    -url /sparkdata/en.openfoodfacts.org.products.csv \
+    -k mykeyspace \
+    -t openfoodfacts \
+    --connector.csv.delimiter "\t" \
+    --schema.allowMissingFields true \
+    --codec.nullStrings "NULL" \
+    --connector.csv.maxCharsPerColumn -1
+
+# googleplaystore_user_reviews.csv
+dsbulk load \
+    -url /sparkdata/googleplaystore_user_reviews.csv \
+    -k mykeyspace \
+    -t googleplaystore_user_reviews \
+    --schema.allowMissingFields true \
+    --codec.nullStrings "NULL" \
+    --connector.csv.maxCharsPerColumn -1 \
+    -m "0 = indexcolumn, 1 = app, 2 = translated_review, 3 = sentiment, 4 = sentiment_polarity, 5 = sentiment_subjectivity"
+
+```
 
 ## Usefule materials
 

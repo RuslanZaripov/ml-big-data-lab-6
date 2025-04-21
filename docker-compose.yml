@@ -1,0 +1,114 @@
+networks:
+  app-network:
+    driver: bridge
+
+services:
+
+  cassandra-1:
+    container_name: cassandra-1
+    image: cassandra:latest
+    ports:
+      - 7000:7000
+      - 9042:9042
+    networks:
+      - app-network
+    environment:
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+    volumes:
+      - ./sparkdata:/sparkdata
+      - cassandra-node-1:/var/lib/cassandra:rw
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 2m
+      start_period: 2m
+      timeout: 10s
+      retries: 6
+
+  cassandra-2:
+    container_name: cassandra-2
+    image: cassandra:latest
+    ports:
+      - 9043:9042
+    networks:
+      - app-network
+    environment:
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+      - CASSANDRA_SEEDS=cassandra-1
+    depends_on:
+      cassandra-1:
+        condition: service_healthy
+    volumes:
+      - cassandra-node-2:/var/lib/cassandra:rw
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 2m
+      start_period: 2m
+      timeout: 10s
+      retries: 6
+
+  cassandra-3:
+    container_name: cassandra-3
+    image: cassandra:latest
+    ports:
+      - 9044:9042
+    networks:
+      - app-network
+    environment:
+      - HEAP_NEWSIZE=128M
+      - MAX_HEAP_SIZE=1024M
+      - CASSANDRA_SEEDS=cassandra-1
+    depends_on:
+      cassandra-2:
+        condition: service_healthy
+    volumes:
+       - cassandra-node-3:/var/lib/cassandra:rw
+    restart:
+      on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status"]
+      interval: 2m
+      start_period: 2m
+      timeout: 10s
+      retries: 6
+
+  spark-jupyter:
+    container_name: pyspark-notebook
+    image: jupyter/all-spark-notebook:spark-3.5.0
+    ports:
+      - 8888:8888 # Jupyter web interface
+      - 4040:4040 # Spark UI
+    networks:
+      - app-network
+    working_dir: /app
+    depends_on:
+      - cassandra-1
+      - cassandra-2
+      - cassandra-3
+    volumes:
+      - ./:/app
+
+  app:
+    build: .
+    container_name: app
+    env_file: .env
+    entrypoint: [ "tail", "-f", "/dev/null" ]
+    networks:
+      - app-network
+    depends_on:
+      - cassandra-1
+      - cassandra-2
+      - cassandra-3
+      - spark-jupyter
+    volumes:
+      - ./:/app
+
+volumes:
+  cassandra-node-1:
+  cassandra-node-2:
+  cassandra-node-3:
