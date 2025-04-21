@@ -1,5 +1,11 @@
 # ml-big-data-lab-5
 
+## Description
+
+Stack: Cassandra, PySpark
+
+## PySpark configuration
+
 - execute the following command to know which host port has been mapped to the container's port 8888
 
 ```bash
