@@ -22,6 +22,15 @@ docker logs --tail 3 pyspark-notebook
 
 ## Load data to Cassandra
 
+- create table
+
+```bash
+docker exec app python src/create_database.py \
+    --table-name openfoodfacts \
+    --csv-path ./sparkdata/en.openfoodfacts.org.products.csv \
+    --delimiter '\t'
+```
+
 - execute inside `cassandra` container
 
 ```bash
