@@ -6,6 +6,10 @@ from cassandra.cluster import Cluster
 
 parser = argparse.ArgumentParser(description="Create Database")
 parser.add_argument(
+    "--table-name", 
+    required=True, 
+    help="Table name")
+parser.add_argument(
     "--csv-path", 
     required=True, 
     help="Path to the CSV file")
@@ -22,9 +26,11 @@ timeout = 60
 
 def get_cassandra_session():
     contact_points = IP_ADDRESS.split(',')
+    print(f"{contact_points=} {PORT=}")
     cluster = Cluster(
         contact_points=contact_points,
-        port=PORT
+        port=PORT,
+        connect_timeout=timeout,
     )
     session = cluster.connect()
     return cluster, session
@@ -44,8 +50,6 @@ try:
     columns = pd.read_csv(csv_file_path, delimiter=args.delimiter, nrows=1).columns.tolist()
     print(f"{columns=}")
 
-    csv_file_name, ext = os.path.splitext(csv_file_path.split('/')[-1])
-
     column_definitions = []
     for col in columns:
         if col == 'code' or col == 'IndexColumn':
@@ -54,13 +58,13 @@ try:
             col_type = 'text'
         column_definitions.append(f"{col.replace('-', '_')} {col_type}")
         
-    print(f"dropping table {csv_file_name} if it exists...")
-    session.execute(f"DROP TABLE IF EXISTS {csv_file_name}", timeout=timeout)
+    print(f"dropping table {args.table_name} if it exists...")
+    session.execute(f"DROP TABLE IF EXISTS {args.table_name}", timeout=timeout)
         
-    print(f"creating table {csv_file_name} if it not exists...")
+    print(f"creating table {args.table_name} if it not exists...")
     definitions_str = '\t' + ',\n\t'.join(column_definitions)
     table_creation_command = f"""
-    CREATE TABLE IF NOT EXISTS {csv_file_name} (
+    CREATE TABLE IF NOT EXISTS {args.table_name} (
     {definitions_str}
     )
     """
