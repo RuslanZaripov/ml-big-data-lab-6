@@ -5,18 +5,22 @@ import pandas as pd
 from cassandra.cluster import Cluster
 
 parser = argparse.ArgumentParser(description="Create Database")
+
 parser.add_argument(
     "--table-name", 
     required=True, 
     help="Table name")
+
 parser.add_argument(
     "--csv-path", 
     required=True, 
     help="Path to the CSV file")
+
 parser.add_argument(
     "--delimiter", 
     default=None, 
     help="Delimiter used in the CSV file (default: autodetect)")
+
 args = parser.parse_args()
 
 KEYSPACE = os.environ["CASSANDRA_KEYSPACE"]
