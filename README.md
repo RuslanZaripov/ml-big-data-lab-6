@@ -34,11 +34,15 @@ docker exec app python src/create_database.py \
 - execute inside `cassandra` container
 
 ```bash
+docker exec -it cassandra bash
+
 wget https://downloads.datastax.com/dsbulk/dsbulk-1.11.0.tar.gz
 
 tar -xzf dsbulk-1.11.0.tar.gz -C /opt/
 
-export PATH=/opt/dsbulk-1.11.0/bin:$PATH
+echo 'export PATH=/opt/dsbulk-1.11.0/bin:$PATH' >> ~/.bashrc
+
+source ~/.bashrc
 
 dsbulk --version
 
@@ -50,18 +54,18 @@ dsbulk load \
     --connector.csv.delimiter "\t" \
     --schema.allowMissingFields true \
     --codec.nullStrings "NULL" \
-    --connector.csv.maxCharsPerColumn -1
+    --connector.csv.maxCharsPerColumn -1 \
+    --connector.csv.maxRecords 1894492
 
 # googleplaystore_user_reviews.csv
 dsbulk load \
     -url /sparkdata/googleplaystore_user_reviews.csv \
     -k mykeyspace \
-    -t googleplaystore_user_reviews \
+    -t user_reviews \
     --schema.allowMissingFields true \
     --codec.nullStrings "NULL" \
     --connector.csv.maxCharsPerColumn -1 \
     -m "0 = indexcolumn, 1 = app, 2 = translated_review, 3 = sentiment, 4 = sentiment_polarity, 5 = sentiment_subjectivity"
-
 ```
 
 ## Usefule materials
