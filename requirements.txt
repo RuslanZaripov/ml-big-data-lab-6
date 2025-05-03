@@ -1,3 +1,4 @@
-cassandra-driver
+clickhouse-driver
 python-dotenv
 pandas
+tqdm
