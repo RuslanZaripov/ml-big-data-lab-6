@@ -4,36 +4,25 @@ networks:
 
 services:
 
-  cassandra:
-    container_name: cassandra
-    image: cassandra:latest
+  clickhouse:
+    container_name: clickhouse
+    image: clickhouse/clickhouse-server:latest
+    env_file: .env
     ports:
-      - 7000:7000
-      - 9042:9042
+      - 8123:8123
+      - 9000:9000
     networks:
       - app-network
-    environment:
-      - HEAP_NEWSIZE=128M
-      - MAX_HEAP_SIZE=4096M
     volumes:
       - ./scripts:/scripts
       - ./sparkdata:/sparkdata
-      - cassandra-node:/var/lib/cassandra:rw
-    restart:
-      on-failure
-    healthcheck:
-      test: ["CMD-SHELL", "nodetool status"]
-      interval: 2m
-      start_period: 2m
-      timeout: 10s
-      retries: 6
+      - clickhouse_log:/var/log/clickhouse-server:rw
+      - clickhouse_data:/var/lib/clickhouse:rw
 
   spark:
     container_name: spark
     image: jupyter/all-spark-notebook:spark-3.5.0
-    env_file: .env
-    command: >
-      sh -c '
+    command: sh -c '
       pip install --upgrade pip &&
       pip install -r /app/requirements.txt &&
       start-notebook.sh --NotebookApp.token="" --NotebookApp.password=""'
@@ -44,9 +33,10 @@ services:
       - app-network
     working_dir: /app
     depends_on:
-      - cassandra
+      - clickhouse
     volumes:
       - ./:/app
 
 volumes:
-  cassandra-node:
+  clickhouse_data:
+  clickhouse_log:
