@@ -43,7 +43,7 @@ class Clusterizer():
         
         self.useful_cols = [
             'code',
-            'energy_kcal_100g',
+            # 'energy_kcal_100g',
             'fat_100g',
             'carbohydrates_100g',
             'sugars_100g',
@@ -91,7 +91,7 @@ class Clusterizer():
         # an energy-amount of more than 1000kcal 
         # (the maximum amount of energy a product can have; 
         # in this case it would conists of 100% fat)
-        processed_df = processed_df.filter(col('energy_kcal_100g') < 1000)
+        # processed_df = processed_df.filter(col('energy_kcal_100g') < 1000)
         
         # a feature (except for the energy-ones) higher than 100g
         columns_to_filter = [c for c in processed_df.columns if c != 'energy_kcal_100g' and c not in self.metadata_cols]
