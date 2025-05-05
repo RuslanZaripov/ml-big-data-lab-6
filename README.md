@@ -28,3 +28,33 @@ docker exec spark python src/create_database.py \
 docker exec clickhouse /scripts/seed_db.sh
 docker exec spark python src/clusterize.py --numPartitions 30
 ```
+
+### Project Structure
+
+```text
+.
+├── README.md
+├── conf
+│   └── spark.ini
+├── docker-compose.yml
+├── logfile.log
+├── notebooks
+│   ├── openfoodfacts_clustering.ipynb
+│   ├── openfoodfacts_preprocessing.ipynb
+│   └── word_count.ipynb
+├── report
+│   └── Отчет Лаб6.pdf
+├── requirements.txt
+├── scripts
+│   └── seed_db.sh
+├── sparkdata
+│   ├── en.openfoodfacts.org.products.csv
+│   └── googleplaystore_user_reviews.csv
+├── src
+│   ├── clusterize.py
+│   ├── create_database.py
+│   └── logger.py
+└── static
+    ├── Лабораторная работа 5 (весна 2025).pdf
+    └── Лабораторная работа 6 (весна 2025).pdf
+```
